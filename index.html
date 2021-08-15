@@ -1,0 +1,18 @@
+<html>
+<body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+
+<!--
+<script type = "text/javascript">
+    window.getTwitterResults = function(data) {
+      console.log(JSON.stringify(data));
+    };
+</script>
+<script  type="application/javascript" src = "http://cotacao.b3.com.br/mds/api/v1/DerivativeQuotation/DI1?callback=getTwitterResults"></script>
+-->
+<script>
+$.getJSON("https://www2.cetip.com.br/ConsultarTaxaDi/ConsultarTaxaDICetip.aspx", function( data ) { console.log(JSON.stringify(data)); });
+</script>
+</body>
+</html>
