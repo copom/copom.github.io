@@ -12,7 +12,10 @@
 <script  type="application/javascript" src = "http://cotacao.b3.com.br/mds/api/v1/DerivativeQuotation/DI1?callback=getTwitterResults"></script>
 -->
 <script>
-$.getJSON("https://www2.cetip.com.br/ConsultarTaxaDi/ConsultarTaxaDICetip.aspx", function( data ) { console.log(JSON.stringify(data)); });
+$.getJSON("https://www2.cetip.com.br/ConsultarTaxaDi/ConsultarTaxaDICetip.aspx", function( data ) {
+	alert(data.taxa)
+	console.log(data);
+});
 </script>
 </body>
 </html>
