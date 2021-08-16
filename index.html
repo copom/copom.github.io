@@ -73,7 +73,6 @@ var dados = {
 	
 	calcula_dias: function(){
 		var data_atual = dados.database;
-		console.log(data_atual);
 		var DC = 0;
 		var DU = -1;
 		if(data_atual.getDay() == 0 || data_atual.getDay() == 6){ DU = 0; }
@@ -88,6 +87,11 @@ var dados = {
 			DC++;
 			dados.tb_datas[strData] = {DU:DU, DC:DC};
 		}
+	},
+	
+	calcula_taxas: function(){
+	
+	
 	},
 	
 	feriados: [
