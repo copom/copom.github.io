@@ -18,7 +18,7 @@ var dados = {
 	taxa_CDI,
 	taxa_SELIC,
 	database: new Date(),
-	database_max: new Date(2023, 0, 1),
+	database_max: new Date(2031, 0, 1),
 	futuros: [],
 	tb_datas: [],
 	datas_copom: ["2021-09-23","2021-10-28","2021-12-09"],
@@ -72,7 +72,7 @@ var dados = {
 	},
 	
 	calcula_dias: function(){
-		var data_atual = dados.database;
+		var data_atual = new Date(dados.database.getTime());
 		var DC = 0;
 		var DU = -1;
 		if(data_atual.getDay() == 0 || data_atual.getDay() == 6){ DU = 0; }
