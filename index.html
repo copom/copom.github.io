@@ -8,25 +8,33 @@
 <body>
 Data-base: <span id="database"></span><br>
 CDI: <span id="taxa_CDI"></span><br>
-SELIC: <span id="taxa_SELIC"></span>
+SELIC: <span id="taxa_SELIC"></span><br>
 
-
-
+Tabela:<br>
+<span id="saida"></span>
 <script>
 var dados = {
 
 	taxa_CDI,
 	taxa_SELIC,
-	database,
+	database: new Date(),
+	database_max: new Date(2023, 0, 1),
+	futuros: [],
+	tb_datas: [],
 	datas_copom: ["2021-09-23","2021-10-28","2021-12-09"],
 
 	get_CDI: function(){
 		var url = "https://www2.cetip.com.br/ConsultarTaxaDi/ConsultarTaxaDICetip.aspx";
 		$.getJSON(url, function(data) {
 			dados.taxa_CDI = (parseFloat((data.taxa).replace(",", "."))/100);
-			alert(data.dataTaxa);
+		
+			DateParts = data.dataTaxa.split("/");
+			var dia = new Date(+DateParts[2], +DateParts[1] - 1, +DateParts[0]);
+			dados.database = dia;
+
 		}).done(function() {
 			dados.mostrar_taxas();
+			dados.calcula_dias();
 		});
 	},
 	get_SELIC: function(){
@@ -38,7 +46,22 @@ var dados = {
 		});
 	},
 	
+	get_futuros_DI: function(){
+		var url = "http://cotacao.b3.com.br/mds/api/v1/DerivativeQuotation/DI1";
+		$.getJSON(url, function(data) {
+			data.Scty.forEach(function(item, index, array) {
+				if(!(item.SctyQtn.curPrc === undefined)) {
+					dados.futuros[item.asset.AsstSummry.mtrtyCode] = item.SctyQtn.curPrc/100;
+				}
+			});
+		}).done(function() {
+			dados.mostrar_taxas();
+		});
+	},
+	
+	
 	mostrar_taxas: function(){
+		document.getElementById("database").innerHTML = toIsoString(dados.database);
 		document.getElementById("taxa_CDI").innerHTML = dados.formatar_numero(dados.taxa_CDI*100)+"%";
 		document.getElementById("taxa_SELIC").innerHTML = dados.formatar_numero(dados.taxa_SELIC*100)+"%";
 	},
@@ -48,12 +71,27 @@ var dados = {
 		return n.format(numero);
 	},
 	
-	
-	
-	
+	calcula_dias: function(){
+		var data_atual = dados.database;
+		console.log(data_atual);
+		var DC = 0;
+		var DU = -1;
+		if(data_atual.getDay() == 0 || data_atual.getDay() == 6){ DU = 0; }
+		while(data_atual <= dados.database_max) {
+			strData = toIsoString(data_atual);
+			var ic_du = false;
+			if(data_atual.getDay() != 0 && data_atual.getDay() != 6 && !dados.feriados.includes(strData)) {
+				ic_du = true;
+				DU++;
+			}
+			data_atual.setDate(data_atual.getDate()+1);
+			DC++;
+			dados.tb_datas[strData] = {DU:DU, DC:DC};
+		}
+	},
 	
 	feriados: [
-	//Ano novo	 Carnaval	  Carnaval	   Pascoa		Tiradentes	 Trabalho	  Corpus Chr.  Independ.	Aparecida	 Finados	  Republica	   Natal	
+	//Ano novo	|Carnaval	 |Carnaval	  |Pascoa		Tiradentes	 Trabalho	  Corpus Chr.  Independ.	Aparecida	 Finados	  Republica	   Natal	
 	"2021-01-01","2021-02-15","2021-02-16","2021-04-02","2021-04-21","2021-05-01","2021-06-03","2021-09-07","2021-10-12","2021-11-02","2021-11-15","2021-12-25",
 	"2022-01-01","2022-02-28","2022-03-01","2022-04-15","2022-04-21","2022-05-01","2022-06-16","2022-09-07","2022-10-12","2022-11-02","2022-11-15","2022-12-25",
 	"2023-01-01","2023-02-20","2023-02-21","2023-04-07","2023-04-21","2023-05-01","2023-06-08","2023-09-07","2023-10-12","2023-11-02","2023-11-15","2023-12-25",
@@ -113,7 +151,7 @@ var dados = {
 	"2077-01-01","2077-02-22","2077-02-23","2077-04-09","2077-04-21","2077-05-01","2077-06-10","2077-09-07","2077-10-12","2077-11-02","2077-11-15","2077-12-25",
 	"2078-01-01","2078-02-14","2078-02-15","2078-04-01","2078-04-21","2078-05-01","2078-06-02","2078-09-07","2078-10-12","2078-11-02","2078-11-15","2078-12-25"]
 };
-function d(a, m, d) { return toIsoString(new Date(a, m-1, d)); }
+
 function toIsoString(date) {
   var tzo = -date.getTimezoneOffset(),
       dif = tzo >= 0 ? '+' : '-',
@@ -126,6 +164,7 @@ function toIsoString(date) {
 
 dados.get_CDI();
 dados.get_SELIC();
+dados.get_futuros_DI();
 </script>
 </body>
 </html>
